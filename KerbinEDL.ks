@@ -1,4 +1,4 @@
-RUNONCEPATH("delay.ks").
+RUNONCEPATH("DELAY").
 
 CLEARSCREEN.
 PRINT "Kerbin Landing Script".

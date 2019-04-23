@@ -1,4 +1,4 @@
-RUNONCEPATH("delay.ks").
+RUNONCEPATH("DELAY").
 
 PRINT "Execute Maneuver Node (XMN) Script".
 

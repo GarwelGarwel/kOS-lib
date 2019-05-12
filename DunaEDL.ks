@@ -6,7 +6,7 @@ LOCK connected TO HOMECONNECTION:ISCONNECTED.
 FUNCTION Log2
 {
 	PARAMETER msg.
-	
+
 	IF (connected) { LOG msg TO logFile. }
 	ELSE
 	{ SET logCache TO logCache + msg + Char(13). }
@@ -16,12 +16,15 @@ ON connected
 {
 	IF connected
 	{
-		Echo("Signal acquired.").
 		Log2(logCache).
 		SET logCache TO "".
+		Echo("Signal acquired.").
 	}
 	ELSE
-	{ Echo("Signal lost."). }
+	{
+		PRINT "Signal lost.".
+		Echo("Signal lost.").
+	}
 	RETURN TRUE.
 }
 
@@ -29,7 +32,8 @@ FUNCTION Echo
 {
 	PARAMETER msg.
 
-	PRINT DateTime + ": " + msg.
+	IF connected
+	{ PRINT DateTime + ": " + msg. }
 	Log2(TIME:SECONDS +";" + CHAR(34) + msg + CHAR(34) + ";;;;;;;;;;").
 }
 
@@ -41,11 +45,11 @@ FUNCTION Display
 	SET line TO line + 1.
 }
 
-SET logFile TO "0:/logs/" + SHIP:NAME:SPLIT(" ")[0] + " DUNALAND Data.csv".
+SET logFile TO "0:/logs/" + SHIP:NAME:SPLIT(" ")[0] + " DUNAEDL Data.csv".
 SET logCache TO "".
 Log2("UT;Message;Stage;Alt;Radar Alt;Speed;Ac;Max Ac;Throttle;TTT;Qx1000;Pe;Ap").
 
-Echo("Duna Atmospheric Entry & Chute-Assisted Landing (DUNALAND) for " + SHIP:NAME).
+Echo("Duna Atmospheric Entry, Descent and Landing (DUNAEDL) for " + SHIP:NAME).
 
 WAIT UNTIL ALTITUDE < 80000.
 KUNIVERSE:TIMEWARP:CANCELWARP().
@@ -85,9 +89,10 @@ WHEN ALTITUDE < 16000 THEN
 
 WHEN (AIRSPEED < 400) OR (NOT CHUTESSAFE) THEN
 {
-	Echo("Deploying chutes. Qx1000 = " + ROUND(SHIP:Q * 1000)).
+	Echo("Deploying chutes and landing gear. Qx1000 = " + ROUND(SHIP:Q * 1000)).
 	STAGE.
 	CHUTES ON.
+	GEAR ON.
 }
 
 WHEN (THROTTLE = 0) AND (AIRSPEED > 10) AND (AIRSPEED < 180) THEN
@@ -124,10 +129,13 @@ PRINT "".
 UNTIL ((SHIP:STATUS = "LANDED") AND (AIRSPEED < 0.1)) OR (ALTITUDE > 80000)
 {
 	SET line TO 1.
-	Display("Alt:   " + ROUND(ALT:RADAR) + " m").
-	Display("Speed: " + ROUND(AIRSPEED, 1) + " m/s").
-	Display("Acc:   " + ROUND(ac, 1) + " / " + ROUND(maxAc, 1) + " m/s^2").
-	Display("Q:     " + ROUND(SHIP:Q * 1000) + " mAtm").
+	IF connected
+	{
+		Display("Alt:   " + ROUND(ALT:RADAR) + " m").
+		Display("Speed: " + ROUND(AIRSPEED, 1) + " m/s").
+		Display("Acc:   " + ROUND(ac, 1) + " / " + ROUND(maxAc, 1) + " m/s^2").
+		Display("Q:     " + ROUND(SHIP:Q * 1000) + " mAtm").
+	}
 
 	IF TIME:SECONDS >= logTime
 	{

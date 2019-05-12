@@ -5,7 +5,7 @@ LOCK DateTime TO FLOOR(1 + TIME:SECONDS / (3600 * 6 * 426)) + "-" + FLOOR(1 + MO
 FUNCTION Log2
 {
 	PARAMETER msg.
-	
+
 	IF (HOMECONNECTION:ISCONNECTED)
 	{ LOG msg TO logFile. }
 	ELSE
@@ -82,14 +82,14 @@ IF DEFINED TWP
 			Echo("Target Waypoint (WP): " + WP:NAME + " @ " + TGEO + " (" + ROUND(TDIST) + " m away)").
 			BREAK.
 		}
-		ELSE
-		{
-			SET TGEO TO 0.
-			SET TDIST TO 0.
-			SET TBEAR TO 0.
-			SET THEAD TO 0.
-		}
 	}
+}
+ELSE
+{
+	SET TGEO TO 0.
+	SET TDIST TO 0.
+	SET TBEAR TO 0.
+	SET THEAD TO 0.
 }
 
 UNTIL NOT HASNODE
@@ -194,7 +194,7 @@ UNTIL exit
 	Display("SRP:   " + ROUND(SRP, 2) + " deg").
 	Display("SBD:   " + ROUND(SBD) + " s").
 	Display("TTI:   " + ROUND(TTI) + " s").
-	
+
 	IF (TIME:SECONDS >= logTime)
 	{
 		SET ac TO (srfSpeed - lastSpeed) / (TIME:SECONDS - logTime + 1).
@@ -202,7 +202,7 @@ UNTIL exit
 		Log2(TIME:SECONDS + ";;" + ROUND(ALT:RADAR) + ";" + ROUND(srfSpeed, 1) + ";" + ROUND(VERTICALSPEED, 1) + ";" + ROUND(GROUNDSPEED, 1) + ";" + ROUND(ac, 2) + ";" + ROUND(GA, 2) + ";" + ROUND(MAC, 3) + ";" + ROUND(THROTTLE * 100) + "%;" + ROUND(SBD, 1) + ";" + ROUND(TTI, 1) + ";" + ROUND(SRP, 1) + ";" + ROUND(DTLZ) + ";" + ROUND(TDIST) + ";" + ROUND(TBEAR, 1)).
 		SET logTime TO TIME:SECONDS + 1.
 	}
-	
+
 	IF SHIP:STATUS = "LANDED"
 	{
 		Echo("Touchdown. Stabilizing.").
